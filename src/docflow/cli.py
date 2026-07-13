@@ -15,6 +15,7 @@ def main() -> None:
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("init")
     ingest = commands.add_parser("import-file"); ingest.add_argument("path")
+    ingest.add_argument("--streaming", action="store_true", help="Force bounded-memory streaming mode")
     export = commands.add_parser("export"); export.add_argument("import_id", type=int); export.add_argument("--output")
     web = commands.add_parser("serve"); web.add_argument("--host", default="127.0.0.1"); web.add_argument("--port", type=int, default=8765)
     commands.add_parser("list")
@@ -23,7 +24,8 @@ def main() -> None:
     pipeline = IngestionPipeline(settings)
     if args.command == "init": print(f"Initialized: {settings.db_path}")
     elif args.command == "import-file":
-        result = pipeline.ingest(args.path); print(f"Import #{result.import_id}: {result.status} ({len(result.sheets)} sheets)")
+        result = pipeline.ingest(args.path, streaming=True if args.streaming else None)
+        print(f"Import #{result.import_id}: {result.status} ({len(result.sheets)} sheets)")
     elif args.command == "export":
         target = Path(args.output) if args.output else settings.exports_dir / f"clean_report_{args.import_id}.xlsx"
         print(export_clean_report(pipeline.store, args.import_id, target))
@@ -33,4 +35,3 @@ def main() -> None:
 
 
 if __name__ == "__main__": main()
-

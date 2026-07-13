@@ -2,7 +2,7 @@
 
 Each item is a releasable vertical slice, not a partially connected component.
 
-## 0.1 — Excel proof path (current)
+## 0.1 — Excel proof path (complete)
 
 - XLSX/XLSM upload and immutable source retention
 - header detection and row classification
@@ -10,17 +10,17 @@ Each item is a releasable vertical slice, not a partially connected component.
 - embedded image extraction, deduplication, lineage, and report preview
 - SQLite audit store, local web review, clean Excel export
 
-Operational envelope: moderate-size workbooks on Python 3.10–3.12. Very large
-worksheets are deliberately the next slice because they require streaming XML
-ingestion and batched database writes rather than pretending an in-memory reader
-is safe at factory scale.
+This original path remains available for small workbooks and regression coverage.
 
-## 0.2 — Large Excel vertical slice
+## 0.2 — Large Excel vertical slice (current)
 
-- streaming worksheet XML reader for 500k+ rows and wide tables
-- batched writes and bounded memory
+- bounded-memory worksheet reader for 500k+ rows and wide tables
+- configurable batched database writes
 - drawing/media extraction directly from the XLSX package
-- progress, cancellation, resumable imports, and performance acceptance tests
+- bounded-memory review and clean-report export
+- automatic activation for workbooks of 8 MB or larger, plus a force flag
+
+Job progress, cancellation, and resumable imports are the next operational slice.
 
 ## 0.3 — Mapping and drift vertical slice
 
@@ -43,4 +43,3 @@ is safe at factory scale.
 
 - stable tool contracts, MCP server, task manifests, dry-run, and approval gates
 - the platform stays usable without an AI model
-

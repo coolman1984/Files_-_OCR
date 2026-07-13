@@ -13,6 +13,10 @@ class Settings:
     exports_dir: Path
     db_path: Path
     max_upload_bytes: int = 250 * 1024 * 1024
+    streaming_threshold_bytes: int = 8 * 1024 * 1024
+    streaming_batch_rows: int = 2_000
+    streaming_preview_rows: int = 100
+    max_columns: int = 2_048
 
     @classmethod
     def from_root(cls, root: str | Path | None = None) -> "Settings":
@@ -30,4 +34,3 @@ class Settings:
     def ensure_dirs(self) -> None:
         for path in (self.data_dir, self.originals_dir, self.images_dir, self.exports_dir):
             path.mkdir(parents=True, exist_ok=True)
-

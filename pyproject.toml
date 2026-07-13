@@ -1,6 +1,6 @@
 [project]
 name = "document-flow"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline-first Excel ingestion, image extraction, reconciliation, and reporting"
 requires-python = ">=3.10,<3.13"
 dependencies = ["openpyxl>=3.1", "XlsxWriter>=3.2", "Pillow>=10"]

@@ -1,6 +1,6 @@
 # Files & OCR
 
-## Document Flow — Excel Vertical Slice
+## Document Flow — Excel Vertical Slice v0.2
 
 An offline-first, working vertical slice for factory Excel ingestion:
 
@@ -10,6 +10,7 @@ An offline-first, working vertical slice for factory Excel ingestion:
 4. Store auditable records in SQLite.
 5. Reconcile calculated numeric totals against totals written in the workbook.
 6. Review the run in a local web UI and export a clean Excel report.
+7. Stream large workbooks into SQLite in bounded batches instead of retaining all rows in memory.
 
 The core pipeline does not depend on the web UI or an AI model. Future OCR, PDF,
 email, DuckDB, and MCP adapters can be added without changing its contracts.
@@ -20,6 +21,18 @@ email, DuckDB, and MCP adapters can be added without changing its contracts.
 python3 scripts/create_sample.py
 PYTHONPATH=src python3 -m docflow.cli import-file samples/factory_defects.xlsx
 PYTHONPATH=src python3 -m docflow.cli serve --port 8765
+```
+
+Force streaming mode for an acceptance test or a deceptively compressed workbook:
+
+```bash
+PYTHONPATH=src python3 -m docflow import-file large.xlsx --streaming
+```
+
+Generate a deterministic 500,000-row fixture when performance testing is required:
+
+```bash
+python3 scripts/create_large_sample.py --rows 500000
 ```
 
 Open `http://127.0.0.1:8765`.

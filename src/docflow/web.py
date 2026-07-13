@@ -49,13 +49,15 @@ class AppHandler(BaseHTTPRequestHandler):
             return
         match = re.fullmatch(r"/imports/(\d+)", path)
         if match:
-            data = self.pipeline.store.get_import(int(match.group(1)))
+            import_id = int(match.group(1))
+            data = self.pipeline.store.get_import(import_id, include_records=False)
             if not data: self.send_error(404); return
-            data_rows = sum(r["row_type"] == "data" for s in data["sheets"] for r in s["records"])
-            excluded = sum(r["row_type"] in ("total","subtotal") for s in data["sheets"] for r in s["records"])
-            uncertain = sum(r["row_type"] == "uncertain" for s in data["sheets"] for r in s["records"])
-            images = sum(len(s["images"]) for s in data["sheets"])
-            fails = sum(r["status"] == "fail" for s in data["sheets"] for r in s["reconciliations"])
+            counts = self.pipeline.store.import_counts(import_id)
+            data_rows = counts["data_rows"]
+            excluded = counts["total_rows"]
+            uncertain = counts["uncertain_rows"]
+            images = counts["image_count"]
+            fails = counts["failed_checks"]
             audits = "".join(f"<tr><td>{html.escape(s['name'])}</td><td>{r['source_row']}</td><td>{html.escape(r['column_name'])}</td><td>{r['written_value']}</td><td>{r['calculated_value']}</td><td>{r['difference']}</td><td><span class='pill {r['status']}'>{r['status']}</span></td></tr>" for s in data["sheets"] for r in s["reconciliations"])
             self.send_html(f"<section class='card'><a href='/'>← All imports</a><h2>{html.escape(data['file_name'])}</h2><p><span class='pill {data['status']}'>{data['status']}</span></p><div class='metrics'><div class='metric'><b>{data_rows}</b>clean data rows</div><div class='metric'><b>{excluded}</b>excluded totals</div><div class='metric'><b>{images}</b>linked images</div><div class='metric'><b>{uncertain}</b>review rows</div><div class='metric'><b>{fails}</b>failed checks</div></div><p><a class='button' href='/exports/{data['id']}'>Export clean report</a></p></section><section class='card scroll'><h2>Reconciliation evidence</h2><table><thead><tr><th>Sheet</th><th>Row</th><th>Column</th><th>Written</th><th>Calculated</th><th>Difference</th><th>Status</th></tr></thead><tbody>{audits or '<tr><td colspan=7>No numeric total rows found.</td></tr>'}</tbody></table></section>")
             return
@@ -106,4 +108,3 @@ def serve(settings: Settings, host: str = "127.0.0.1", port: int = 8765) -> None
     try: server.serve_forever()
     except KeyboardInterrupt: pass
     finally: server.server_close()
-

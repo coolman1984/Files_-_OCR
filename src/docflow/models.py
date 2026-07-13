@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 
 @dataclass
@@ -55,3 +55,11 @@ class ImportResult:
     status: str
     sheets: list[ParsedSheet]
 
+
+@dataclass
+class StreamedSheet:
+    name: str
+    header_row: int
+    headers: list[str]
+    rows: Iterable[ParsedRow]
+    images: list[ImageAsset]

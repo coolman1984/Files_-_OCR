@@ -8,11 +8,15 @@ from .store import Store
 
 
 def export_clean_report(store: Store, import_id: int, output: Path) -> Path:
-    data = store.get_import(import_id)
+    data = store.get_import(import_id, include_records=False)
     if data is None:
         raise ValueError(f"Import {import_id} does not exist")
     output.parent.mkdir(parents=True, exist_ok=True)
-    workbook = xlsxwriter.Workbook(output)
+    workbook = xlsxwriter.Workbook(output, {
+        "constant_memory": True,
+        "strings_to_formulas": False,
+        "strings_to_urls": False,
+    })
     title = workbook.add_format({"bold": True, "font_size": 16, "font_color": "#FFFFFF", "bg_color": "#14213D", "align": "center"})
     header = workbook.add_format({"bold": True, "font_color": "#FFFFFF", "bg_color": "#2457C5", "border": 1})
     ok = workbook.add_format({"font_color": "#16794B", "bg_color": "#E8F7EF"})
@@ -35,9 +39,7 @@ def export_clean_report(store: Store, import_id: int, output: Path) -> Path:
         ws.write_row(0, 0, columns, header)
         image_paths = {item["sha256"]: item["path"] for item in sheet["images"]}
         output_row = 1
-        for record in sheet["records"]:
-            if record["row_type"] != "data":
-                continue
+        for record in store.iter_records(sheet["id"], "data"):
             ws.write(output_row, 0, record["source_row"])
             ws.write(output_row, 1, len(record["image_hashes"]))
             for image_index, image_hash in enumerate(record["image_hashes"][:3]):
