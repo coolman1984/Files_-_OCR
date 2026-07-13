@@ -1,0 +1,12 @@
+[project]
+name = "document-flow"
+version = "0.1.0"
+description = "Offline-first Excel ingestion, image extraction, reconciliation, and reporting"
+requires-python = ">=3.10,<3.13"
+dependencies = ["openpyxl>=3.1", "XlsxWriter>=3.2", "Pillow>=10"]
+
+[project.scripts]
+docflow = "docflow.cli:main"
+
+[tool.ruff]
+line-length = 100
